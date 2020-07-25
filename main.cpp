@@ -27,6 +27,7 @@ typedef struct sKeys {
 } Keys;
 
 Keys* createKeys(int);
+void printKeys(Keys * keys);
 
 int main() {
   int size = 41;
@@ -34,6 +35,7 @@ int main() {
   Keys* keys = createKeys(size);
 
   printf("%d", keys->size);
+  printKeys(keys);
 
   return 1;
 }
@@ -52,38 +54,48 @@ Keys* createKeys(int size){
 
   Hashbucket* aux = hb;
 
-  for(int i = 1; i<=size; i++) {
-    Hashbucket* hb1 = (Hashbucket*)malloc(sizeof(Hashbucket));
+  for(int i = 1; i <= size; i++) {
+    Hashbucket* newHashBucket = (Hashbucket*)malloc(sizeof(Hashbucket));
 
     if(i == 1 ){
-      hb->next = hb1;
-      hb1->prev = hb;
-      hb1->size = 0;
-      hb1->bucketIndex = i;
-      aux = hb1;
+      hb->next = newHashBucket;
+      newHashBucket->prev = hb;
+      newHashBucket->size = 0;
+      newHashBucket->bucketIndex = i;
+      aux = newHashBucket;
     }else if(i == size) {
-      aux->next = hb1;
+      aux->next = newHashBucket;
+      newHashBucket->prev = aux;
+      newHashBucket->next = NULL;
+      newHashBucket->size = 0;
+      newHashBucket->bucketIndex = i;
 
-      hb1->prev = aux;
-      hb1->next = NULL;
-      hb1->size = 0;
-      hb1->bucketIndex = i;
-
-      keys->tail = hb1;
+      keys->tail = newHashBucket;
 
       free(aux);
     }else {
-      aux->next = hb1;
+      aux->next = newHashBucket;
 
-      hb1->prev = aux;
-      hb1->size = 0;
-      hb1->bucketIndex = i;
-
-      aux = hb1;
+      newHashBucket->prev = aux;
+      newHashBucket->size = 0;
+      newHashBucket->bucketIndex = i;
+      aux = newHashBucket;
     }
 
     keys->size += 1;
   }
 
   return keys;
+}
+
+void printKeys(Keys * keys) {
+  Hashbucket *aux;
+
+  aux=keys->head;
+
+  for(int i = 0; i < keys->size ; i++){
+    printf("\n%d -> ",aux->bucketIndex);
+    printf("%d\n",aux->size); 
+    aux=aux->next;
+  }
 }
