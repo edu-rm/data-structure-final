@@ -28,13 +28,16 @@ typedef struct sKeys {
 
 Keys* createKeys(int);
 void printKeys(Keys * keys);
+int hash(int);
+int charToAscii(char* name);
 
 int main() {
   int size = 41;
-
   Keys* keys = createKeys(size);
 
-  printf("%d", keys->size);
+  // int value = charToAscii("Adi");
+
+
   printKeys(keys);
 
   return 1;
@@ -82,20 +85,31 @@ Keys* createKeys(int size){
       aux = newHashBucket;
     }
 
-    keys->size += 1;
+    keys->size++;
   }
 
   return keys;
 }
 
 void printKeys(Keys * keys) {
-  Hashbucket *aux;
-
+  Hashbucket *aux;  
   aux=keys->head;
-
   for(int i = 0; i < keys->size ; i++){
     printf("\n%d -> ",aux->bucketIndex);
     printf("%d\n",aux->size); 
     aux=aux->next;
   }
 }
+
+int charToAscii(char* name) {
+  return (int) name[0];
+}
+
+int hash(int value) {
+  return value % 41;
+}
+
+// int hash(int key) {
+//   return key % 
+// }
+
