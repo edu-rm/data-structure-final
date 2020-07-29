@@ -1,6 +1,7 @@
   
 #include <stdio.h>
 #include <stdlib.h>
+// #define _GNU_SOURCE
 
 typedef struct sHashNode {
   struct sHashNode *next;
@@ -31,36 +32,39 @@ void printKeys(Keys*);
 int hash(int);
 int charToAscii(char*);
 void insert(Keys*, char*);
+void handleFile(Keys*);
+
 
 int main() {
   int size = 41;
   Keys* keys = createKeys(size);
+  handleFile(keys);
 
-  char n1[] = "amanda";
-  char n2[] = "bruno";
-  char n3[] = "Carlos";
-  char n4[] = "Fabio";
-  char n5[] = "Gabriela";
-  char n6[] = "Heloisa";
-  char n7[] = "Igor";
-  char n8[] = "Yuri";
-  char n9[] = "Tiago";
-  char n10[] = "Kaio";
-  char n11[] = "kathleen";
+  // char n1[] = "amanda";
+  // char n2[] = "bruno";
+  // char n3[] = "Carlos";
+  // char n4[] = "Fabio";
+  // char n5[] = "Gabriela";
+  // char n6[] = "Heloisa";
+  // char n7[] = "Igor";
+  // char n8[] = "Yuri";
+  // char n9[] = "Tiago";
+  // char n10[] = "Kaio";
+  // char n11[] = "kathleen";
   
   
 
-  insert(keys, n1);
-  insert(keys, n2);
-  insert(keys, n3);
-  insert(keys, n4);
-  insert(keys, n5);
-  insert(keys, n6);
-  insert(keys, n7);
-  insert(keys, n8);
-  insert(keys, n9);
-  insert(keys, n10);
-  insert(keys, n11);
+  // insert(keys, n1);
+  // insert(keys, n2);
+  // insert(keys, n3);
+  // insert(keys, n4);
+  // insert(keys, n5);
+  // insert(keys, n6);
+  // insert(keys, n7);
+  // insert(keys, n8);
+  // insert(keys, n9);
+  // insert(keys, n10);
+  // insert(keys, n11);
 
 
   
@@ -179,13 +183,13 @@ void printKeys(Keys * keys) {
     printf("\n%d -> ",aux->bucketIndex);
     printf("%d\n",aux->size); 
 
-    if(aux->size != 0) {
-      nodeAux = aux->front;
-      for(int l = 0; l<aux->size; l++) {
-        printf("%s, ", nodeAux->name);
-        nodeAux = nodeAux->next;
-      }
-    }
+    // if(aux->size != 0) {
+    //   nodeAux = aux->front;
+    //   for(int l = 0; l<aux->size; l++) {
+    //     printf("%s, ", nodeAux->name);
+    //     nodeAux = nodeAux->next;
+    //   }
+    // }
    
     printf("\n\n");
     aux=aux->next;
@@ -200,7 +204,28 @@ int hash(int asciiValue) {
   return asciiValue % 41;
 }
 
-// int hash(int key) {
-//   return key % 
-// }
+void handleFile(Keys* keys){
+  size_t line_size = 20;
 
+  char* path = "nomes.txt";
+  FILE* file = fopen(path, "r");
+
+  char *line = malloc(line_size);
+  int i =0;
+
+  while(getline(&line, &line_size, file) > 0){
+    if(i == 100) {
+      break;
+    }
+    // printf("%s", line);
+
+    insert(keys, line);
+    
+    i++;
+  }
+
+  if (line)
+    free(line);
+  fclose(file);
+
+} 
