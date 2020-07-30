@@ -1,7 +1,8 @@
   
 #include <stdio.h>
 #include <stdlib.h>
-// #define _GNU_SOURCE
+#include <string.h>
+#define M 13
 
 typedef struct sHashNode {
   struct sHashNode *next;
@@ -33,11 +34,13 @@ int hash(int);
 int charToAscii(char*);
 void insert(Keys*, char*);
 void handleFile(Keys*);
-
+void freeLists(Keys*);
 
 int main() {
-  int size = 41;
+  int size = M;
+
   Keys* keys = createKeys(size);
+
   handleFile(keys);
 
   // char n1[] = "amanda";
@@ -51,9 +54,6 @@ int main() {
   // char n9[] = "Tiago";
   // char n10[] = "Kaio";
   // char n11[] = "kathleen";
-  
-  
-
   // insert(keys, n1);
   // insert(keys, n2);
   // insert(keys, n3);
@@ -70,26 +70,32 @@ int main() {
   
 
   printKeys(keys);
+  // freeLists(keys);
 
   return 1;
 }
 
 void insert(Keys* keys, char* name){
-  // se eu quero inserir algo, preciso saber em qual bucket esse algo se encaixa!
   int asciiValue = charToAscii(name);
   int hashed = hash(asciiValue);
 
-  // printf("%d", hashed);
+  // printf("\n%d", hashed);
 
 
   Hashbucket* aux = keys->head;
   
-  for(int i = 0 ; i < 41 ; i++){
+  for(int i = 0 ; i < M ; i++){
     if(hashed == aux->bucketIndex) {
       //aqui será inserido
       if(aux->size == 0)  {
         HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
-        hn->name = name;
+        // hn->name = (char *)malloc(sizeof(name));
+        // char new[20] ;
+        char* new = (char*)malloc(sizeof(char) * 40 + 1);
+        strcpy(new, name);
+
+        hn->name = new;
+
         
         aux->front = hn;
         aux->tail = hn;
@@ -97,7 +103,15 @@ void insert(Keys* keys, char* name){
         aux->size++;
       }else {
         HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
-        hn->name = name;
+        // strcpy(hn->name, name);
+        // hn->name = name;
+
+        // hn->name = name;
+        char* new = (char*)malloc(sizeof(char) * 40 + 1);
+        strcpy(new, name);
+
+        hn->name = new;
+
         hn->prev = aux->tail;
 
         aux->tail->next = hn;
@@ -106,7 +120,6 @@ void insert(Keys* keys, char* name){
         aux->size++;
       }
       break;
-      // flag = 1;
     }else {
       aux = aux->next;
     }
@@ -117,7 +130,7 @@ void insert(Keys* keys, char* name){
 
 Keys* createKeys(int size){
   Keys* keys = (Keys*)malloc(sizeof(Keys));
-  keys->size = 0;
+  keys->size = size -1;
 
   Hashbucket* hb = (Hashbucket*)malloc(sizeof(Hashbucket));
   // HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
@@ -132,13 +145,11 @@ Keys* createKeys(int size){
 
   Hashbucket* aux = hb;
 
-  for(int i = 1; i <= size; i++) {
+  for(int i = 1; i < M; i++) {
     Hashbucket* newHashBucket = (Hashbucket*)malloc(sizeof(Hashbucket));
     // HashNode* newHashNode = (HashNode*)malloc(sizeof(HashNode));
-
-
     if(i == 1 ){
-      hb->next = newHashBucket;
+      aux->next = newHashBucket;
       newHashBucket->prev = hb;
       newHashBucket->size = 0;
       newHashBucket->bucketIndex = i;
@@ -167,7 +178,6 @@ Keys* createKeys(int size){
       aux = newHashBucket;
     }
 
-    keys->size++;
   }
 
   return keys;
@@ -176,24 +186,27 @@ Keys* createKeys(int size){
 void printKeys(Keys * keys) {
   Hashbucket *aux; 
   HashNode *nodeAux;  
-
+  int qtd =0;
   aux=keys->head;
 
-  for(int i = 0; i < keys->size ; i++){
+  for(int i = 0; i <= M-1 ; i++){
     printf("\n%d -> ",aux->bucketIndex);
     printf("%d\n",aux->size); 
 
-    // if(aux->size != 0) {
-    //   nodeAux = aux->front;
-    //   for(int l = 0; l<aux->size; l++) {
-    //     printf("%s, ", nodeAux->name);
-    //     nodeAux = nodeAux->next;
-    //   }
-    // }
+    if(aux->size > 0) {
+      nodeAux = aux->front;
+      // printf("%D",nodeAux->);
+      for(int l = 0; l < aux->size; l++) {
+      //   printf(nodeAux->name);
+        qtd++;
+      //   nodeAux = nodeAux->next;
+      }
+    }
    
     printf("\n\n");
     aux=aux->next;
   }
+  printf("\nQTD TOTAL: %d",qtd);
 }
 
 int charToAscii(char* name) {
@@ -201,31 +214,53 @@ int charToAscii(char* name) {
 }
 
 int hash(int asciiValue) {
-  return asciiValue % 41;
+  return asciiValue % M;
 }
 
 void handleFile(Keys* keys){
-  size_t line_size = 20;
+  size_t line_size = 30;
 
   char* path = "nomes.txt";
   FILE* file = fopen(path, "r");
 
-  char *line = malloc(line_size);
+  char *line = (char*)malloc(sizeof(char)*line_size+1);
   int i =0;
 
   while(getline(&line, &line_size, file) > 0){
-    if(i == 100) {
+    if(i == 100788) {
       break;
     }
-    // printf("%s", line);
-
-    insert(keys, line);
-    
+    insert(keys, line);  
     i++;
   }
 
   if (line)
     free(line);
+
   fclose(file);
 
 } 
+
+void freeLists(Keys* keys) {
+  Hashbucket *aux; 
+  HashNode *nodeAux;  
+
+  aux=keys->head;
+
+  for(int i = 0; i < M ; i++){
+    nodeAux = aux->front;
+
+    for(int l = 0; l < aux->size; l++) {
+      HashNode *freeNode = nodeAux ; 
+      nodeAux = nodeAux->next;
+      free(freeNode->name); 
+      free(freeNode);
+    }
+
+    Hashbucket *freeHb = aux; 
+    aux=aux->next;
+    free(freeHb);
+  }
+
+  free(keys);
+}
