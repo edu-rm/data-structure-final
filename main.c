@@ -40,8 +40,8 @@ void printFirstBucket(Keys* keys);
 /*QUICK SORT*/
 
 HashNode* partition(HashNode *l, HashNode *h);
-// void swap ( HashNode* a, HashNode* b ) ;
-void swap ( int* a, int* b ) ;
+// void swap ( int* a, int* b, char * nameA, char * nameB) ;
+void swap ( int* a, int* b, HashNode * A, HashNode * B ) ;
 void _quickSort(HashNode* l, HashNode *h);
 void quickSort(Hashbucket *hb);
 
@@ -51,27 +51,23 @@ int main() {
   Keys* keys = createKeys(size);
 
   handleFile(keys);
+
   printFirstBucket(keys);
-  
+
   quickSort(keys->head);
-
+  
   printFirstBucket(keys);
 
-  // keys->head->front->ascii = 1;
-  // keys->head->front->next->ascii = 2;
-
-  // printf("%d head\n", keys->head->front->ascii);
-  // printf("%d head+1\n", keys->head->front->next->ascii);
-
-  // swap(&(keys->head->front->ascii), &(keys->head->front->next->ascii));
-
-  // printf("%d head\n", keys->head->front->ascii);
-  // printf("%d head+1\n", keys->head->front->next->ascii);
-  // printKeys(keys);
 
   freeLists(keys);
-
-
+  // printf("Front : %s\n", keys->head->front->name);
+  // printf("Second : %s\n", keys->head->front->next->name);
+  // swap(&(keys->head->front->ascii),&(keys->head->front->next->ascii), keys->head->front, keys->head->front->next);
+  // printf("\n\nFront : %s\n", keys->head->front->name);
+  // printf("Second : %s\n", keys->head->front->next->name); 
+  // quickSort(keys->head);
+  // printf("\n\n\nDEPOIS:\n");
+  // printFirstBucket(keys);
   return 1;
 }
 
@@ -216,7 +212,9 @@ void printFirstBucket(Keys* keys){
   HashNode* aux = hb->front;
   int qtd = 0;
   for(int i= 0; i< hb->size; i++){
-    printf("\n%d", aux->ascii);
+    printf("\n%d    ", aux->ascii);
+    printf("%s", aux->name);
+
     qtd++;
     aux = aux->next;
   }
@@ -290,8 +288,7 @@ void quickSort(Hashbucket *hb) {
 }
 
 void _quickSort(HashNode* l, HashNode *h) { 
-    if (h != NULL && l != h && l != h->next) 
-    { 
+    if (h != NULL && l != h && l != h->next){ 
         HashNode *p = partition(l, h); 
         _quickSort(l, p->prev); 
         _quickSort(p->next, h); 
@@ -304,19 +301,33 @@ HashNode* partition(HashNode *l, HashNode *h) {
   
     for (HashNode *j = l; j != h; j = j->next){ 
       if (j->ascii <= x){ 
-        i = (i->ascii < 0 || i->ascii > 200) ? l : i->next; 
+        i = (i->ascii < 0 || i->ascii > 121) ? l : i->next; 
 
-        swap(&(i->ascii), &(j->ascii)); 
+        swap(&(i->ascii), &(j->ascii), i, j); 
       } 
     } 
     i = (i->ascii < 0 || i->ascii > 200) ? l : i->next; // Similar to i++ 
-    swap(&(i->ascii), &(h->ascii)); 
+    swap(&(i->ascii), &(h->ascii), i, h); 
     return i; 
 } 
 
 
-void swap ( int* a, int* b ) { 
-  int t = *a; *a = *b; *b = t; 
+void swap ( int* a, int* b, HashNode * A, HashNode * B ) { 
+  int t = *a; *a = *b; *b = t;
+
+  char* auxA = (char*)malloc(sizeof(char) * 40 + 1);
+  char* auxB = (char*)malloc(sizeof(char) * 40 + 1);
+  strcpy(auxA, A->name);
+  strcpy(auxB, B->name);
+  free(A->name);
+  free(B->name);
+  A->name = auxB;
+  B->name = auxA;
+
+  // free(A->);
+  
+
+
 } 
 
 
