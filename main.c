@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define M 13
+#define M 11
 
 typedef struct sHashNode {
   struct sHashNode *next;
