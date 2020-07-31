@@ -45,6 +45,69 @@ HashNode* partition(HashNode *l, HashNode *h, int letter);
 void swap ( HashNode * A, HashNode * B ) ;
 void _quickSort(HashNode* l, HashNode *h, int letter);
 void quickSort(Hashbucket *hb,int letter);
+// void quickSubLetters(Hashbucket* hb, int) ;
+
+HashNode* partitionSub(HashNode *prev, HashNode *l, HashNode *h, int letter) { 
+    int x = h->name[letter];
+    // int gambi = h->name[0]; 
+
+    HashNode *i = l->prev; 
+  
+    for (HashNode *j = l; j != h; j = j->next){ 
+
+      if (j->name[letter] <= x){ 
+        i = (i == prev) ? l : i->next; 
+        swap(i, j); 
+      } 
+    } 
+    // int aux = (int) i->name[0];
+    // i = (i->ascii < 0 || i->ascii > 200) ? l : i->next;
+    i = (i == prev) ? l : i->next; 
+    swap(i, h); 
+    // printf("\n vou fazer o swap de %s por %s", i->name, h->name);
+    return i; 
+} 
+
+void _quickSortSub(HashNode *prev, HashNode* l, HashNode *h, int letter) { 
+  if (h != NULL && l != h && l != h->next){ 
+    HashNode *p = partitionSub(prev,l, h, letter); 
+    _quickSortSub(prev,l, p->prev, letter); 
+    _quickSortSub(prev,p->next, h, letter); 
+  } 
+} 
+
+void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
+  if(letter ==  5) return;
+  int flag =0;
+  HashNode *h; 
+
+  HashNode *head = start; 
+  HashNode* aux = head;
+
+  int anterior = head->name[letter];
+  // printf("\n HEAD %s", head->name);
+  while(flag == 0) {
+    if(!(aux->next == NULL)){
+      if(anterior != aux->name[letter]){
+        _quickSortSub(start->prev ,head, h, letter+1);
+
+        quickSubLetters(head, hb, letter+1);
+        // quickSubLetters(h->next, hb, letter+1);
+
+        quickSubLetters(h->next, hb, letter);
+        
+
+
+        flag = 1;
+      }else {
+        h = aux;
+        aux = aux->next;
+      }   
+    } else {
+      flag =1;
+    }
+  }
+}
 
 int main() {
   int size = M;
@@ -93,8 +156,8 @@ void insert(Keys* keys, char* name){
 
         hn->name = new;
         hn->ascii = asciiValue;
-
-        
+        hn->next = NULL;
+        hn->prev = NULL;  
         aux->front = hn;
         aux->tail = hn;
 
@@ -111,6 +174,7 @@ void insert(Keys* keys, char* name){
         hn->name = new;
         hn->ascii = asciiValue;
 
+        hn->next = NULL;  
         hn->prev = aux->tail;
 
         aux->tail->next = hn;
@@ -290,35 +354,8 @@ void quickSort(Hashbucket *hb, int qtd_letter) {
   /*PRIMEIRA ORDENAÇÃO*/
   _quickSort(head, h, 0);
 
-  int flag =0;
-  HashNode *h2; 
-  HashNode *head2 = hb->front; 
-  HashNode* aux = head2;
+  quickSubLetters(hb->front, hb, 0);
 
-  int anterior = head2->name[0];
-
-  while(flag == 0) {
-    if(anterior != aux->name[0]){
-      h2 = aux->prev;
-      flag =1;
-    }else {
-      aux = aux->next;
-    }    
-  }
-
-  printf("\n\nFront: %s\n\n", head2->name);
-  printf("\n\nTAIL: %s\n\n", h2->name);
-
-  head2->prev = NULL;
-  // h2->next = NULL;
-
-
- 
-
-
-  // for(int letter = 0; letter <= qtd_letter; letter++){
-    // _quickSort(head, h, letter); 
-  // }
 }
 
 void _quickSort(HashNode* l, HashNode *h, int letter) { 
