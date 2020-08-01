@@ -38,42 +38,13 @@ void printBucket(Hashbucket*);
 
 /*QUICK SORT*/
 
-HashNode* partition(HashNode *l, HashNode *h, int letter);
-void sortBucket(int bucket, Keys * keys);
-void swap ( HashNode * A, HashNode * B ) ;
-void _quickSort(HashNode* l, HashNode *h, int letter);
-void quickSort(Hashbucket *hb);
+HashNode* partition(HashNode*, HashNode*, int);
+void sortBucket(int bucket, Keys*);
+void swap ( HashNode*, HashNode*) ;
+void quickSortAlgorithm(HashNode*, HashNode*, int);
+void quickSort(Hashbucket*);
+void quickSubLetters(HashNode*, Hashbucket*, int);
 
-void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
-  if(letter == 2) return;
-  int flag =0;
-  HashNode *h; 
-
-  HashNode *head = start; 
-  HashNode* aux = head;
-
-  int anterior = head->name[letter];
-
-  while(flag == 0) {  
-      if(!(aux == NULL)){
-        if(anterior != aux->name[letter]){
-          _quickSort(head, h, letter+1 );
-          quickSubLetters(head, hb, letter+1);
-          quickSubLetters(h->next, hb, letter);
-
-          flag = 1;
-        }else {
-          h = aux;
-          aux = aux->next;
-        }   
-    } else {
-      _quickSort(head, h, letter+1 );
-      quickSubLetters(head, hb, letter+1);
-
-      flag =1;
-    }
-  }
-}
 
 int main() {
   int size = M;
@@ -103,12 +74,61 @@ int main() {
   return 1;
 }
 
+/**
+ *  FUNÇÃO PARA CRIAR UMA ESTRUTURA DE HASH BASEADA NO TAMANHO M
+ */
+
+Keys* createKeys(int size){
+  Keys* keys = (Keys*)malloc(sizeof(Keys));
+  keys->size = size -1;
+
+  Hashbucket* hb = (Hashbucket*)malloc(sizeof(Hashbucket));
+
+  hb->bucketIndex = 0;
+  hb->size = 0;
+  keys->head = hb;
+  keys->tail = hb;
+  keys->size = 1;
+
+  Hashbucket* aux = hb;
+
+  for(int i = 1; i < M; i++) {
+    Hashbucket* newHashBucket = (Hashbucket*)malloc(sizeof(Hashbucket));
+    if(i == 1 ){
+      aux->next = newHashBucket;
+      newHashBucket->prev = hb;
+      newHashBucket->size = 0;
+      newHashBucket->bucketIndex = i;
+      aux = newHashBucket;
+    }else if(i == size) {
+      aux->next = newHashBucket;
+      newHashBucket->prev = aux;
+      newHashBucket->next = NULL;
+      newHashBucket->size = 0;
+      newHashBucket->bucketIndex = i;
+      keys->tail = newHashBucket;
+      free(aux);
+    }else {
+      aux->next = newHashBucket;
+
+      newHashBucket->prev = aux;
+      newHashBucket->size = 0;
+      newHashBucket->bucketIndex = i;
+      aux = newHashBucket;
+    }
+
+  }
+
+  return keys;
+}
+
+/**
+ *  FUNÇÃO PARA INSERIR UM NOME NA ESTRUTURA HASH CRIADA 
+ */
+
 void insert(Keys* keys, char* name){
   int asciiValue = charToAscii(name);
   int hashed = hash(asciiValue);
-
-  // printf("\n%d", hashed);
-
 
   Hashbucket* aux = keys->head;
   
@@ -117,13 +137,11 @@ void insert(Keys* keys, char* name){
       //aqui será inserido
       if(aux->size == 0)  {
         HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
-        // hn->name = (char *)malloc(sizeof(name));
-        // char new[20] ;
+
         char* new = (char*)malloc(sizeof(char) * 40 + 1);
         strcpy(new, name);
 
         hn->name = new;
-        // hn->ascii = asciiValue;
         hn->next = NULL;
         hn->prev = NULL;  
         aux->front = hn;
@@ -132,16 +150,11 @@ void insert(Keys* keys, char* name){
         aux->size++;
       }else {
         HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
-        // strcpy(hn->name, name);
-        // hn->name = name;
 
-        // hn->name = name;
         char* new = (char*)malloc(sizeof(char) * 40 + 1);
         strcpy(new, name);
 
         hn->name = new;
-        // hn->ascii = asciiValue;
-
         hn->next = NULL;  
         hn->prev = aux->tail;
 
@@ -158,6 +171,10 @@ void insert(Keys* keys, char* name){
 
 }
 
+/**
+ *  FUNÇÃO UTILITÁRIA PARA ORDENAR E EXIBIR O BUCKET X 
+ */
+
 void sortBucket(int bucket, Keys * keys) {
     Hashbucket* aux = keys->head;
 
@@ -171,60 +188,9 @@ void sortBucket(int bucket, Keys * keys) {
     }
 }
 
-Keys* createKeys(int size){
-  Keys* keys = (Keys*)malloc(sizeof(Keys));
-  keys->size = size -1;
-
-  Hashbucket* hb = (Hashbucket*)malloc(sizeof(Hashbucket));
-  // HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
-
-  hb->bucketIndex = 0;
-  hb->size = 0;
-  // hb->front = hn;
-  // hb->tail = hn;
-  keys->head = hb;
-  keys->tail = hb;
-  keys->size = 1;
-
-  Hashbucket* aux = hb;
-
-  for(int i = 1; i < M; i++) {
-    Hashbucket* newHashBucket = (Hashbucket*)malloc(sizeof(Hashbucket));
-    // HashNode* newHashNode = (HashNode*)malloc(sizeof(HashNode));
-    if(i == 1 ){
-      aux->next = newHashBucket;
-      newHashBucket->prev = hb;
-      newHashBucket->size = 0;
-      newHashBucket->bucketIndex = i;
-      // newHashBucket->front = newHashNode;
-      // newHashBucket->tail = newHashNode;
-      aux = newHashBucket;
-    }else if(i == size) {
-      aux->next = newHashBucket;
-      newHashBucket->prev = aux;
-      newHashBucket->next = NULL;
-      newHashBucket->size = 0;
-      newHashBucket->bucketIndex = i;
-      // newHashBucket->front = newHashNode;
-      // newHashBucket->tail = newHashNode;
-      keys->tail = newHashBucket;
-
-      free(aux);
-    }else {
-      aux->next = newHashBucket;
-
-      newHashBucket->prev = aux;
-      newHashBucket->size = 0;
-      newHashBucket->bucketIndex = i;
-      // newHashBucket->front = newHashNode;
-      // newHashBucket->tail = newHashNode;
-      aux = newHashBucket;
-    }
-
-  }
-
-  return keys;
-}
+/**
+ *  FUNÇÃO UTILITÁRIA PARA EXIBIR TODOS OS BUCKETS E SEUS RESPECTIVOS TAMANHOS
+ */
 
 void printKeys(Keys * keys) {
   Hashbucket *aux; 
@@ -252,6 +218,10 @@ void printKeys(Keys * keys) {
   printf("\nQTD TOTAL: %d",qtd);
 }
 
+/**
+ *  FUNÇÃO UTILITÁRIA IMPRIMIR O BUCKET PASSADO 
+ */
+
 void printBucket(Hashbucket* hb){
   HashNode* aux = hb->front;
   int qtd = 0;
@@ -267,13 +237,25 @@ void printBucket(Hashbucket* hb){
   
 }
 
+/**
+ *  FUNÇÃO UTILITÁRIA PARA GERAR A SOMA DOS VALORES ASCII DAS 4 PRIMEIRAS LETRAS DE CADA NOME
+ */
+
 int charToAscii(char* name) {
   return (int) (name[0]+name[1]+name[2]+name[3]+name[4]);
 }
 
+/**
+ *  FUNÇÃO HASH MODULAR (RESTO DA DIVISÃO POR M) 
+ */
+
 int hash(int asciiValue) {
   return asciiValue % M;
 }
+
+/**
+ *  FUNÇÃO UTILITÁRIA PARA ABRIR E ITERAR AS LINHAS DO ARQUIVO DE DADOS 
+ */
 
 void handleFile(Keys* keys){
   size_t line_size = 30;
@@ -299,6 +281,10 @@ void handleFile(Keys* keys){
 
 } 
 
+/**
+ *  FUNÇÃO UTILITÁRIA PARA LIBERAR A MEMÓRIA DE TODAS AS LISTAS E SEUS ELEMENTOS
+ */
+
 void freeLists(Keys* keys) {
   Hashbucket *aux; 
   HashNode *nodeAux;  
@@ -323,8 +309,11 @@ void freeLists(Keys* keys) {
   free(keys);
 }
 
+/**
+ *  FUNÇÃO QUE GERENCIA A ORDENAÇÃO DE UM BUCKET
+ */
+
 void quickSort(Hashbucket *hb) { 
-  // Find last node 
   HashNode *h = hb->tail; 
   HashNode *head = hb->front;
 
@@ -332,19 +321,28 @@ void quickSort(Hashbucket *hb) {
   h->next = NULL;
 
   /*PRIMEIRA ORDENAÇÃO*/
-  _quickSort(head, h, 0);
+  quickSortAlgorithm(head, h, 0);
 
+  /* ORDENAÇÃO DE 2º AO 4º NÍVEL */
   quickSubLetters(hb->front, hb, 0);
 
 }
 
-void _quickSort(HashNode* l, HashNode *h, int letter) { 
+/**
+ *  FUNÇÃO QUE ORDENA BASEANDO-SE NO INICIO E FIM PASSADOS COMO PARÂMETRO
+ */
+
+void quickSortAlgorithm(HashNode* l, HashNode *h, int letter) { 
     if (h != NULL && l != h && l != h->next){ 
         HashNode *p = partition(l, h, letter); 
-        _quickSort(l, p->prev, letter); 
-        _quickSort(p->next, h, letter); 
+        quickSortAlgorithm(l, p->prev, letter); 
+        quickSortAlgorithm(p->next, h, letter); 
     } 
 } 
+
+/**
+ *  FUNÇÃO PARTIÇÃO DO METÓDO QUICKSORT
+ */
 
 HashNode* partition(HashNode *l, HashNode *h, int letter) { 
     int x = h->name[letter]; 
@@ -363,11 +361,52 @@ HashNode* partition(HashNode *l, HashNode *h, int letter) {
     return i; 
 } 
 
+/**
+ *  FUNÇÃO RECURSIVA RESPONSÁVEL POR ORDENAR AS LETRAS PARTINDO DO 2º NIVEL, OU SEJA DA SEGUNDA LETRA DE UM AGLOMERADO
+ */
+
+void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
+  /*DADOS MUITO GRANDES NÃO FUNCIONAM COM UMA ORDENAÇÃO DE NÍVEL 4*/
+  /*COMO ELE JA FOI ORDENADO UTILIZANDO A PRIMEIRA LETRA, O LETTER == 2 EQUIVALE AO 3 NÍVEL DE ORDENAÇÃO*/
+  /*(1) + (LETTER = 0) + (LETTER = 1)  = NÍVEL 3*/
+
+  /*OBS: COM UM M VALENDO 41 CONSIGO NO MEU COMPUTADOR RODAR A ORDENAÇÃO DE NÍVEL 4 EM PRATICAMENTE TODOS OS BUCKETS*/
+  
+  if(letter == 2) return;
+  int flag =0;
+  HashNode *h; 
+
+  HashNode *head = start; 
+  HashNode* aux = head;
+
+  int anterior = head->name[letter];
+
+  while(flag == 0) {  
+      if(!(aux == NULL)){
+        if(anterior != aux->name[letter]){
+          quickSortAlgorithm(head, h, letter+1 );
+          quickSubLetters(head, hb, letter+1);
+          quickSubLetters(h->next, hb, letter);
+
+          flag = 1;
+        }else {
+          h = aux;
+          aux = aux->next;
+        }   
+    } else {
+      quickSortAlgorithm(head, h, letter+1 );
+      quickSubLetters(head, hb, letter+1);
+
+      flag =1;
+    }
+  }
+}
+
+/**
+ *  FUNÇÃO UTILITÁRIA RESPONSÁVEL POR TROCAR OS NOMES DE DOIS "LOCAIS" NA MEMÓRIA
+ */
 
 void swap (HashNode * A, HashNode * B ) { 
-  // int* a, int* b, 
-  // int t = *a; *a = *b; *b = t;
-
   char* auxA = (char*)malloc(sizeof(char) * 40 + 1);
   char* auxB = (char*)malloc(sizeof(char) * 40 + 1);
 
@@ -377,11 +416,6 @@ void swap (HashNode * A, HashNode * B ) {
   free(B->name);
   A->name = auxB;
   B->name = auxA;
-
-  // free(A->);
-  
-
-
 } 
 
 
