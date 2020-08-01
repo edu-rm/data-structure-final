@@ -2,12 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define M 11
+#define M 41
 
 typedef struct sHashNode {
   struct sHashNode *next;
   struct sHashNode *prev;
-  int ascii;
   char* name;
 } HashNode;
 
@@ -35,49 +34,18 @@ int charToAscii(char*);
 void insert(Keys*, char*);
 void handleFile(Keys*);
 void freeLists(Keys*);
-void printFirstBucket(Keys* keys);
+void printBucket(Hashbucket*);
 
 /*QUICK SORT*/
 
 HashNode* partition(HashNode *l, HashNode *h, int letter);
-// void swap ( int* a, int* b, char * nameA, char * nameB) ;
-// void swap ( int* a, int* b, HashNode * A, HashNode * B ) ;
+void sortBucket(int bucket, Keys * keys);
 void swap ( HashNode * A, HashNode * B ) ;
 void _quickSort(HashNode* l, HashNode *h, int letter);
-void quickSort(Hashbucket *hb,int letter);
-// void quickSubLetters(Hashbucket* hb, int) ;
-
-HashNode* partitionSub(HashNode *prev, HashNode *l, HashNode *h, int letter) { 
-    int x = h->name[letter];
-    // int gambi = h->name[0]; 
-
-    HashNode *i = l->prev; 
-  
-    for (HashNode *j = l; j != h; j = j->next){ 
-
-      if (j->name[letter] <= x){ 
-        i = (i == prev) ? l : i->next; 
-        swap(i, j); 
-      } 
-    } 
-    // int aux = (int) i->name[0];
-    // i = (i->ascii < 0 || i->ascii > 200) ? l : i->next;
-    i = (i == prev) ? l : i->next; 
-    swap(i, h); 
-    // printf("\n vou fazer o swap de %s por %s", i->name, h->name);
-    return i; 
-} 
-
-void _quickSortSub(HashNode *prev, HashNode* l, HashNode *h, int letter) { 
-  if (h != NULL && l != h && l != h->next){ 
-    HashNode *p = partitionSub(prev,l, h, letter); 
-    _quickSortSub(prev,l, p->prev, letter); 
-    _quickSortSub(prev,p->next, h, letter); 
-  } 
-} 
+void quickSort(Hashbucket *hb);
 
 void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
-  if(letter ==  5) return;
+  if(letter == 2) return;
   int flag =0;
   HashNode *h; 
 
@@ -86,24 +54,24 @@ void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
 
   int anterior = head->name[letter];
   // printf("\n HEAD %s", head->name);
-  while(flag == 0) {
-    if(!(aux->next == NULL)){
-      if(anterior != aux->name[letter]){
-        _quickSortSub(start->prev ,head, h, letter+1);
+  // if(!(aux->next == NULL)) return;
 
-        quickSubLetters(head, hb, letter+1);
-        // quickSubLetters(h->next, hb, letter+1);
+  while(flag == 0) {  
+      if(!(aux == NULL)){
+        if(anterior != aux->name[letter]){
+          _quickSort(head, h, letter+1 );
+          quickSubLetters(head, hb, letter+1);
+          quickSubLetters(h->next, hb, letter);
 
-        quickSubLetters(h->next, hb, letter);
-        
-
-
-        flag = 1;
-      }else {
-        h = aux;
-        aux = aux->next;
-      }   
+          flag = 1;
+        }else {
+          h = aux;
+          aux = aux->next;
+        }   
     } else {
+      _quickSort(head, h, letter+1 );
+      quickSubLetters(head, hb, letter+1);
+
       flag =1;
     }
   }
@@ -116,22 +84,8 @@ int main() {
 
   handleFile(keys);
 
-  // printFirstBucket(keys);
-
-  quickSort(keys->head, 2);
-
-  printFirstBucket(keys);
-
-
+  sortBucket(0, keys);
   freeLists(keys);
-  // printf("Front : %s\n", keys->head->front->name);
-  // printf("Second : %s\n", keys->head->front->next->name);
-  // swap(&(keys->head->front->ascii),&(keys->head->front->next->ascii), keys->head->front, keys->head->front->next);
-  // printf("\n\nFront : %s\n", keys->head->front->name);
-  // printf("Second : %s\n", keys->head->front->next->name); 
-  // quickSort(keys->head);
-  // printf("\n\n\nDEPOIS:\n");
-  // printFirstBucket(keys);
   return 1;
 }
 
@@ -155,7 +109,7 @@ void insert(Keys* keys, char* name){
         strcpy(new, name);
 
         hn->name = new;
-        hn->ascii = asciiValue;
+        // hn->ascii = asciiValue;
         hn->next = NULL;
         hn->prev = NULL;  
         aux->front = hn;
@@ -172,7 +126,7 @@ void insert(Keys* keys, char* name){
         strcpy(new, name);
 
         hn->name = new;
-        hn->ascii = asciiValue;
+        // hn->ascii = asciiValue;
 
         hn->next = NULL;  
         hn->prev = aux->tail;
@@ -190,6 +144,18 @@ void insert(Keys* keys, char* name){
 
 }
 
+void sortBucket(int bucket, Keys * keys) {
+    Hashbucket* aux = keys->head;
+
+    for(int i = 0 ; i <= bucket; i++){
+      if(i == bucket) {
+        quickSort(aux);
+        printBucket(aux);
+        break;
+      }
+      aux= aux->next;
+    }
+}
 
 Keys* createKeys(int size){
   Keys* keys = (Keys*)malloc(sizeof(Keys));
@@ -272,19 +238,18 @@ void printKeys(Keys * keys) {
   printf("\nQTD TOTAL: %d",qtd);
 }
 
-void printFirstBucket(Keys* keys){
-  Hashbucket* hb = keys->head;
+void printBucket(Hashbucket* hb){
   HashNode* aux = hb->front;
   int qtd = 0;
   for(int i= 0; i< hb->size; i++){
     // printf("\n%d    ", aux->ascii);
     printf("%s", aux->name);
-
     qtd++;
     aux = aux->next;
   }
 
   printf("\nQTD: %d", qtd);
+  printf("\n\n\n\n");
   
 }
 
@@ -306,7 +271,7 @@ void handleFile(Keys* keys){
   int i =0;
 
   while(getline(&line, &line_size, file) > 0){
-    if(i == 1000) {
+    if(i == 100788) {
       break;
     }
     insert(keys, line);  
@@ -344,13 +309,14 @@ void freeLists(Keys* keys) {
   free(keys);
 }
 
-void quickSort(Hashbucket *hb, int qtd_letter) { 
+void quickSort(Hashbucket *hb) { 
   // Find last node 
   HashNode *h = hb->tail; 
   HashNode *head = hb->front;
 
   head->prev =NULL;
   h->next = NULL;
+
   /*PRIMEIRA ORDENAÇÃO*/
   _quickSort(head, h, 0);
 
@@ -373,20 +339,13 @@ HashNode* partition(HashNode *l, HashNode *h, int letter) {
     for (HashNode *j = l; j != h; j = j->next){ 
 
       if (j->name[letter] <= x){ 
-        // int aux = &i->name[0] == NULL;
-        // printf("\n%d", aux);
         i = (i == NULL) ? l : i->next; 
-
-        // i = (i->ascii < 0 || i->ascii > 200) ? l : i->next; 
         swap(i, j); 
       } 
     } 
-    // int aux = (int) i->name[0];
-    // i = (i->ascii < 0 || i->ascii > 200) ? l : i->next;
     i = (i == NULL) ? l : i->next;
 
     swap(i, h); 
-    // printf("\n vou fazer o swap de %s por %s", i->name, h->name);
     return i; 
 } 
 
