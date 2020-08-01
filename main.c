@@ -48,16 +48,52 @@ void quickSubLetters(HashNode*, Hashbucket*, int);
 
 int main() {
   int size = M;
-  int option;
+  int option = 0;
   int menuController = 0;
 
 
   Keys* keys = createKeys(size);
-  printf("CARREGANDO NOMES DOS ARQUIVOS NA ESTRUTURA HASH\n");
+  printf("CARREGANDO ARQUIVO...\n");
   handleFile(keys);
-  printf("------ CARREGADO COM SUCESSO ------\n");
-  printKeys(keys);
-  sortBucket(0, keys);
+  printf("CARREGADO COM SUCESSO\n");
+
+  for(;;) {
+    printf("\n\n\n------------------TABELA HASH E QUICKSORT EM C------------------\n");
+    printf("\n[1] INSERIR\n[2] IMPRIMIR\n[3] DELETAR\n[4] PESQUISAR\n[5] SAIR");
+
+	  scanf("%i", &option);
+
+    switch(option) {
+      case 1 : {
+        printf("\nInserir");
+        break;
+      }
+      case 2 : {
+        printf("\nImprimir");
+        break;
+
+      }
+      case 3 : {
+        printf("\nDeletar");
+        break;
+
+      }
+      case 4 : {
+        printf("\nPEsquisar");
+        break;
+
+      }
+      case 5 : {
+        system("cls");
+        exit(0);
+        break;
+
+      }
+    }
+
+  }
+  // printKeys(keys);
+  // sortBucket(0, keys);
   // sortBucket(1, keys);
   // sortBucket(2, keys);
   // sortBucket(3, keys);
