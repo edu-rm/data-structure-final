@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define M 41
+#define M 11
 
 typedef struct sHashNode {
   struct sHashNode *next;
@@ -53,8 +53,6 @@ void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
   HashNode* aux = head;
 
   int anterior = head->name[letter];
-  // printf("\n HEAD %s", head->name);
-  // if(!(aux->next == NULL)) return;
 
   while(flag == 0) {  
       if(!(aux == NULL)){
@@ -79,12 +77,28 @@ void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
 
 int main() {
   int size = M;
+  int option;
+  int menuController = 0;
+
 
   Keys* keys = createKeys(size);
-
+  printf("CARREGANDO NOMES DOS ARQUIVOS NA ESTRUTURA HASH\n");
   handleFile(keys);
-
+  printf("------ CARREGADO COM SUCESSO ------\n");
+  printKeys(keys);
   sortBucket(0, keys);
+  // sortBucket(1, keys);
+  // sortBucket(2, keys);
+  // sortBucket(3, keys);
+  // sortBucket(4, keys);
+  // sortBucket(5, keys);
+  // sortBucket(6, keys);
+  // sortBucket(7, keys);
+  // sortBucket(8, keys);
+  // sortBucket(9, keys);
+  // sortBucket(10, keys);
+  // sortBucket(11, keys);
+  // sortBucket(0, keys);
   freeLists(keys);
   return 1;
 }
@@ -254,7 +268,7 @@ void printBucket(Hashbucket* hb){
 }
 
 int charToAscii(char* name) {
-  return (int) name[0];
+  return (int) (name[0]+name[1]+name[2]+name[3]+name[4]);
 }
 
 int hash(int asciiValue) {
