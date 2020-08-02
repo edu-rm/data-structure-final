@@ -39,14 +39,14 @@ void printBucket(Hashbucket*);
 /*QUICK SORT*/
 
 HashNode* partition(HashNode*, HashNode*, int);
-void sortBucket(int bucket, Keys*);
-void swap ( HashNode*, HashNode*) ;
+void sortBucket(int, Keys*);
+void swap (HashNode*, HashNode*) ;
 void quickSortAlgorithm(HashNode*, HashNode*, int);
 void quickSort(Hashbucket*);
 void quickSubLetters(HashNode*, Hashbucket*, int);
-void search(Keys* keys, char* name);
-void delete(Keys* keys, char* name);
-void removeStringTrailingNewline(char *str);
+void search(Keys*, char*);
+void delete(Keys*, char*);
+void removeStringTrailingNewline(char*);
 
 int main() {
   system("cls");
