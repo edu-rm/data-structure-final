@@ -44,13 +44,19 @@ void swap ( HashNode*, HashNode*) ;
 void quickSortAlgorithm(HashNode*, HashNode*, int);
 void quickSort(Hashbucket*);
 void quickSubLetters(HashNode*, Hashbucket*, int);
-
+void search(Keys* keys, char* name);
+void delete(Keys* keys, char* name);
+void removeStringTrailingNewline(char *str);
 
 int main() {
+  system("cls");
   int size = M;
   int option = 0;
+  int bucket = 0;
   int menuController = 0;
-
+  char newName[25];
+  char nameSearch[25];
+  char deleteName[25];
 
   Keys* keys = createKeys(size);
   printf("CARREGANDO ARQUIVO...\n");
@@ -58,55 +64,54 @@ int main() {
   printf("CARREGADO COM SUCESSO\n");
 
   for(;;) {
+    // system("cls");
     printf("\n\n\n------------------TABELA HASH E QUICKSORT EM C------------------\n");
-    printf("\n[1] INSERIR\n[2] IMPRIMIR\n[3] DELETAR\n[4] PESQUISAR\n[5] SAIR");
+    printf("\n[1] INSERIR\n[2] ORDENAR E IMPRIMIR\n[3] DELETAR\n[4] PESQUISAR\n[5] IMPRIMIR QUANTIDADE DE NOMES POR BUCKET\n[6] SAIR\n");
 
 	  scanf("%i", &option);
 
     switch(option) {
       case 1 : {
-        printf("\nInserir");
+        printf("\nDIGITE O NOME A SER INSERIDO:  ");
+        scanf("%s", &newName);
+        insert(keys, newName);
+        printf("\n%s inserido com sucesso\n", newName);
         break;
       }
-      case 2 : {
-        printf("\nImprimir");
+       case 2 : {
+        printf("\nDIGITE QUAL O BUCKET QUE VOCE DESEJA ORDENAR E EXIBIR:  ");
+    	  scanf("%i", &bucket);
+        sortBucket(bucket, keys);
         break;
-
       }
       case 3 : {
-        printf("\nDeletar");
+        printf("\nDIGITE O NOME A SER DELETADO:  ");
+        scanf("%s", &deleteName);
+        delete(keys, deleteName);
         break;
-
       }
       case 4 : {
-        printf("\nPEsquisar");
+        printf("\nDIGITE O NOME A SER PESQUISADO:  ");
+        scanf("%s", &nameSearch);
+        // getchar();
+        search(keys, nameSearch);
         break;
 
       }
       case 5 : {
+        printKeys(keys);
+        break;
+      }
+      case 6 : {
         system("cls");
+        freeLists(keys);
         exit(0);
         break;
-
       }
     }
 
   }
-  // printKeys(keys);
-  // sortBucket(0, keys);
-  // sortBucket(1, keys);
-  // sortBucket(2, keys);
-  // sortBucket(3, keys);
-  // sortBucket(4, keys);
-  // sortBucket(5, keys);
-  // sortBucket(6, keys);
-  // sortBucket(7, keys);
-  // sortBucket(8, keys);
-  // sortBucket(9, keys);
-  // sortBucket(10, keys);
-  // sortBucket(11, keys);
-  // sortBucket(0, keys);
-  freeLists(keys);
+
   return 1;
 }
 
@@ -167,14 +172,15 @@ void insert(Keys* keys, char* name){
   int hashed = hash(asciiValue);
 
   Hashbucket* aux = keys->head;
-  
+  int string_len = strlen(name);
   for(int i = 0 ; i < M ; i++){
     if(hashed == aux->bucketIndex) {
       //aqui será inserido
       if(aux->size == 0)  {
         HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
+        // char* new = (char*)malloc(sizeof(char) * 40 + 1);
 
-        char* new = (char*)malloc(sizeof(char) * 40 + 1);
+        char* new = (char*)malloc(sizeof(char)* string_len+2);
         strcpy(new, name);
 
         hn->name = new;
@@ -187,7 +193,8 @@ void insert(Keys* keys, char* name){
       }else {
         HashNode* hn = (HashNode*)malloc(sizeof(HashNode));
 
-        char* new = (char*)malloc(sizeof(char) * 40 + 1);
+        // char* new = (char*)malloc(sizeof(char) * 40 + 1);
+        char* new = (char*)malloc(sizeof(char)* string_len+2);
         strcpy(new, name);
 
         hn->name = new;
@@ -240,11 +247,8 @@ void printKeys(Keys * keys) {
 
     if(aux->size > 0) {
       nodeAux = aux->front;
-      // printf("%D",nodeAux->);
       for(int l = 0; l < aux->size; l++) {
-      //   printf(nodeAux->name);
         qtd++;
-      //   nodeAux = nodeAux->next;
       }
     }
    
@@ -261,9 +265,9 @@ void printKeys(Keys * keys) {
 void printBucket(Hashbucket* hb){
   HashNode* aux = hb->front;
   int qtd = 0;
+
   for(int i= 0; i< hb->size; i++){
-    // printf("\n%d    ", aux->ascii);
-    printf("%s", aux->name);
+    printf("%s\n", aux->name);
     qtd++;
     aux = aux->next;
   }
@@ -294,7 +298,7 @@ int hash(int asciiValue) {
  */
 
 void handleFile(Keys* keys){
-  size_t line_size = 30;
+  size_t line_size = 40;
 
   char* path = "nomes.txt";
   FILE* file = fopen(path, "r");
@@ -306,6 +310,7 @@ void handleFile(Keys* keys){
     if(i == 100788) {
       break;
     }
+    removeStringTrailingNewline(line);
     insert(keys, line);  
     i++;
   }
@@ -443,8 +448,12 @@ void quickSubLetters(HashNode* start, Hashbucket* hb, int letter) {
  */
 
 void swap (HashNode * A, HashNode * B ) { 
-  char* auxA = (char*)malloc(sizeof(char) * 40 + 1);
-  char* auxB = (char*)malloc(sizeof(char) * 40 + 1);
+  int string_lenA = strlen(A->name);
+  int string_lenB = strlen(A->name);
+
+
+  char* auxA = (char*)malloc(sizeof(char) * string_lenA + 2);
+  char* auxB = (char*)malloc(sizeof(char) * string_lenB + 2);
 
   strcpy(auxA, A->name);
   strcpy(auxB, B->name);
@@ -454,4 +463,72 @@ void swap (HashNode * A, HashNode * B ) {
   B->name = auxA;
 } 
 
+void search(Keys* keys, char* name){
+  int asciiValue = charToAscii(name);
+  int hashed = hash(asciiValue);
 
+  Hashbucket* aux = keys->head;
+
+  for(int i = 0; i< M; i++) {
+    if(aux->bucketIndex == hashed) {
+      printf("\nPESQUISANDO NO BUCKET %i", aux->bucketIndex);
+      HashNode* hn = aux->front;
+
+      for(int i = 0; i < aux->size; i++) {
+        int value = strcmp(name, hn->name);
+
+
+        if(value == 0) {
+          printf("\n%s", hn->name);
+          return;
+        }
+       
+        hn= hn->next;
+      }
+      break;
+    }
+    aux= aux->next;
+  }
+  printf("\nESSE NOME NAO EXISTE.\n");
+}
+
+void delete(Keys* keys, char* name){
+  int asciiValue = charToAscii(name);
+  int hashed = hash(asciiValue);
+
+  Hashbucket* aux = keys->head;
+
+  for(int i = 0; i< M; i++) {
+    if(aux->bucketIndex == hashed) {
+      HashNode* hn = aux->front;
+
+      for(int i = 0; i < aux->size; i++) {
+        int value = strcmp(name, hn->name);
+        if(value == 0) {
+          HashNode* toDelete = hn;
+          printf("\n%s", hn->name);
+          hn->prev->next = hn->next;
+          hn->next->prev = hn->prev;
+          aux->size -= 1;
+          free(toDelete);
+          printf("\n%s deletado com sucesso\n", name);
+          return;
+        }
+        hn= hn->next;
+      }
+      break;
+    }
+    aux= aux->next;
+  }
+  printf("\nFALHA AO DELETAR\n");
+}
+
+void removeStringTrailingNewline(char *str) {
+  if (str == NULL)
+    return;
+
+  int length = strlen(str);
+
+  if (str[length-1] == '\n')
+    str[length-1]  = '\0';
+}
