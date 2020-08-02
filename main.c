@@ -463,6 +463,10 @@ void swap (HashNode * A, HashNode * B ) {
   B->name = auxA;
 } 
 
+/**
+ *  FUNÇÃO PARA PESQUISAR UM NOME
+ */
+
 void search(Keys* keys, char* name){
   int asciiValue = charToAscii(name);
   int hashed = hash(asciiValue);
@@ -491,6 +495,10 @@ void search(Keys* keys, char* name){
   }
   printf("\nESSE NOME NAO EXISTE.\n");
 }
+
+/**
+ *  FUNÇÃO PARA DELETAR UM NOME
+ */
 
 void delete(Keys* keys, char* name){
   int asciiValue = charToAscii(name);
@@ -522,6 +530,10 @@ void delete(Keys* keys, char* name){
   }
   printf("\nFALHA AO DELETAR\n");
 }
+
+/**
+ *  FUNÇÃO UTILITÁRIA PARA REMOVER \n DO FINAL DE UMA STRING
+ */
 
 void removeStringTrailingNewline(char *str) {
   if (str == NULL)
