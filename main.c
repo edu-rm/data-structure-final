@@ -282,7 +282,23 @@ void printBucket(Hashbucket* hb){
  */
 
 int charToAscii(char* name) {
-  return (int) (name[0]+name[1]+name[2]+name[3]+name[4]);
+  int ascii = 0;
+  if(name[0] >= 0 ||name[0] <= 121  ){
+    ascii += (int) name[0];
+  }
+  if(name[1] >= 0 ||name[1] <= 121  ){
+    ascii += (int) name[1];
+  }
+  if(name[2] >= 0 ||name[2] <= 121  ){
+    ascii += (int) name[2];
+  }
+  if(name[3] >= 0 ||name[3] <= 121  ){
+    ascii += (int) name[3];
+  }
+  if(name[4] >= 0 ||name[4] <= 121  ){
+    ascii += (int) name[4];
+  }
+  return (int) (ascii);
 }
 
 /**
